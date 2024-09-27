@@ -1,0 +1,20 @@
+{
+  "name": "lineapi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon --exec node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@line/bot-sdk": "^9.4.0",
+    "express": "^4.21.0",
+    "fs": "^0.0.1-security",
+    "nodemon": "^3.1.6"
+  }
+}

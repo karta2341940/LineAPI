@@ -49,6 +49,7 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
     const userID = req.body["events"][0]["source"]["userId"]
+    console.log(userID)
     try {
         await client.pushMessage({
             "to": userID,
@@ -61,7 +62,7 @@ app.post('/', async (req, res) => {
         })
     } catch (err) {
         for (let i in err) {
-            console.log(err)
+            console.log(i)
         }
     }
     return res.json().status(200)

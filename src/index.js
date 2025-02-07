@@ -1,26 +1,15 @@
-import * as line from '@line/bot-sdk'
-import fs from 'fs'
+
+
 import express from 'express'
 import http from 'http'
-import cryto from 'crypto'
 
+import { parse, SQLiteInit } from './functions.js'
 
-const secretJson = JSON.parse(fs.readFileSync("secret.json", { encoding: "utf-8" }))
-const token = "Irzd5+ncVovKDaphFyh6YS4QGIIQNulKuYDA/sU7EBvKeWxuchJowAykMGRm46PDtNaPJKv1qsXwF/FSMPPBL6234lundk5WIlUYqJvmC3UrJKUwf6K/fDBAZs9JaaVgBkqtwyUM5x6oYu+eCviFSwdB04t89/1O/w1cDnyilFU="
-const secret = "c34c2c8aa288788ef93a784a0181c9bc"
-const config = {
-    channelSecret: secret
-}
-
-
-const client = new line.messagingApi.MessagingApiClient({
-    "channelAccessToken": token,
-})
 
 const app = express();
 app.use(express.json())
 app.use(express.urlencoded({
-    "extended":true
+    "extended": true
 }))
 app.use((req, res, next) => {
     console.log(req.url)
@@ -46,20 +35,16 @@ app.get('/', async (req, res) => {
     }
     return res.json({}).end()
 })
-
+/**
+ * 接收訊息
+ */
 app.post('/', async (req, res) => {
     const userID = req.body["events"][0]["source"]["userId"]
-    console.log(userID)
+    const message = req.body["events"][0]["message"]["text"]
+    // console.log(userID, " Say : ",  req.body)
     try {
-        await client.pushMessage({
-            "to": userID,
-            "messages": [
-                {
-                    "text": "Hello",
-                    "type": "text"
-                }
-            ]
-        })
+        parse(userID, message);
+
     } catch (err) {
         for (let i in err) {
             console.log(i)
@@ -71,30 +56,32 @@ app.post('/', async (req, res) => {
 app.post('/call/:user', async (req, res) => {
     try {
         const userID = req.params.user
-    try {
-        await client.pushMessage({
-            "to": userID,
-            "messages": [
-                {
-                    "text": req.body.message,
-                    "type": "text"
-                }
-            ]
-        })
-    } catch (err) {
-        for (let i in err) {
-            console.log(err)
+        console.log(req.body)
+        try {
+            await client.pushMessage({
+                "to": userID,
+                "messages": [
+                    {
+                        "text": req.body,
+                        "type": "text"
+                    }
+                ]
+            })
+        } catch (err) {
+            for (let i in err) {
+                // console.log(err)
+            }
         }
-    }
-    return res.json().status(200)
-        
+        return res.json().status(200)
+
     } catch (err) {
         console.log('Error')
     }
 
     return res.json({}).end()
 })
-const port = 80
+const port = 8081
 http.createServer(app).listen(port).on('listening', () => {
+    SQLiteInit()
     console.log(`Listening on ${port}`)
 })

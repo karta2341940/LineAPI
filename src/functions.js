@@ -1,13 +1,13 @@
 import * as line from '@line/bot-sdk'
 import fs from 'fs'
-import sqlite from 'better-sqlite3'
+import { DatabaseSync } from "node:sqlite"
 const token = "Irzd5+ncVovKDaphFyh6YS4QGIIQNulKuYDA/sU7EBvKeWxuchJowAykMGRm46PDtNaPJKv1qsXwF/FSMPPBL6234lundk5WIlUYqJvmC3UrJKUwf6K/fDBAZs9JaaVgBkqtwyUM5x6oYu+eCviFSwdB04t89/1O/w1cDnyilFU="
 const secret = "c34c2c8aa288788ef93a784a0181c9bc"
 const config = {
     channelSecret: secret
 }
 // const secretJson = JSON.parse(fs.readFileSync("secret.json", { encoding: "utf-8" }))
-const db = new sqlite("./data.sqlite")
+const db = new DatabaseSync("./data.sqlite")
 const LoginList = []
 
 const client = new line.messagingApi.MessagingApiClient({
@@ -19,17 +19,18 @@ const client = new line.messagingApi.MessagingApiClient({
  * @param {String} userID 
  * @param {String} message 
  */
-export function parse(userID = "", message = "") {
+export async function parse(userID = "", message = "") {
     if (LoginList.includes(userID)) {
         setUser(userID, message)
     }
     switch (message.toLowerCase()) {
         case "登入":
         case "login":
-            sendMessage(userID, "請輸入姓名")
+            await sendMessage(userID, "請輸入姓名")
             LoginList.push(userID)
             break;
         default:
+            await sendMessage(userID, "Hello")
             break;
     }
 }
@@ -50,18 +51,36 @@ function setUser(userID = "", name = "") {
         userID: userID,
         userName: name
     })
-    // fs.writeFileSync("./loginList", data, { encoding: "utf-8" })
+    sendMessage(userID, "登入成功")
 }
 
-export function SQLiteInit() {
 
+/**
+ * 將資料寫入SQLite
+ * @param {*} userID 
+ * @param {*} name 
+ */
+export function setCode(code = "") {
+
+    const stmt = db.prepare(`INSERT INTO CODES(otp) VALUES(@otp)`)
+    stmt.run({
+        otp: code
+    })
+}
+export function SQLiteInit() {
     db.exec(`
             CREATE TABLE IF NOT EXISTS EMPL(
-            userID TEXT PRIMARY KEY NOT NULL,
+            userID TEXT,
             userName TEXT
+            )`)
+    db.exec(`
+            CREATE TABLE IF NOT EXISTS CODES(
+            OTP TEXT
             )`)
 
 }
+
+
 /**
  * 傳送訊息
  * @param {String} userID 
@@ -77,4 +96,12 @@ export async function sendMessage(userID = "", message = "Default Message") {
             }
         ]
     })
+}
+
+export default {
+    parse,
+    SQLiteInit,
+    sendMessage,
+    setCode
+
 }

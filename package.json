@@ -7,6 +7,11 @@
     "start": "nodemon --exec node src/index.js",
     "test": "node test/index.js"
   },
+  "imports": {
+    "#root/*.js": "./*.js",
+    "#src/*.js": "./src/*.js",
+    "#tcp/*.js": "./src/tcpServer/*.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,6 +22,7 @@
     "express": "^4.21.0",
     "express-async-handler": "^1.2.0",
     "fs": "^0.0.1-security",
+    "moment": "^2.30.1",
     "nodemon": "^3.1.6"
   }
 }

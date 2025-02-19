@@ -60,10 +60,11 @@ function setUser(userID = "", name = "") {
  * @param {*} userID 
  * @param {*} name 
  */
-export function setCode(code = "") {
+export function setCode(userID = "", code = "") {
 
-    const stmt = db.prepare(`INSERT INTO CODES(otp) VALUES(@otp)`)
+    const stmt = db.prepare(`INSERT INTO CODES(userID,otp) VALUES(@userID,@otp) ON CONFLICT(userID) DO UPDATE SET otp = excluded.otp`)
     stmt.run({
+        userID: userID,
         otp: code
     })
 }
@@ -75,6 +76,7 @@ export function SQLiteInit() {
             )`)
     db.exec(`
             CREATE TABLE IF NOT EXISTS CODES(
+            userID TEXT PRIMARY KEY NOT NULL,
             OTP TEXT
             )`)
 
